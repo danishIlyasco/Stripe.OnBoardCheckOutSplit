@@ -1,0 +1,24 @@
+﻿@page
+@using Stripe.OnBoardCheckOutSplit.Models;
+@model IndexModel
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Home page";
+    var appUser = await UserManager.GetUserAsync(User);
+    bool isStripeConnected = Convert.ToBoolean(ViewData["isStripeConnected"]);
+}
+
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    @if (!isStripeConnected)
+    {
+        <form class="form-inline" asp-route-returnUrl="Index" method="post">
+            <input type="submit" class="btn btn-primary" value="Click here to Register to stripe" />
+        </form>
+    }
+    
+</div>

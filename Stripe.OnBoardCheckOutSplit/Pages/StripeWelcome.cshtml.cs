@@ -32,7 +32,8 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
             if (appUser != null)
             {
                 StripeConfiguration.ApiKey = "sk_test_51NaxGxLHv0zYK8g4ZEh9KncjP5T6hbERI8VIn5bKUZvuY36xCSfp99bdrH5Td65cXkJ5FgDdMFVbmAao6xfm8Wje00pAJrWOjf";
-
+                
+                // checking Status of the account
                 if (_stripeAccountService.IsComplete(appUser.StripeConnectedId))
                 {
                     appUser.StripeAccountStatus = ApplicationUser.StripeAccountStatuses.Complete;
@@ -40,7 +41,9 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                     _context.SaveChanges();
                     return;
                 }
+                // incase account is not complete 
 
+                // check if accidently landed user has not created the account.
                 if (appUser.StripeAccountStatus == ApplicationUser.StripeAccountStatuses.NotCreated)
                 {
                     appUser.StripeConnectedId = _stripeAccountService.CreateStripeAccount(StripeConfiguration.ApiKey);
@@ -49,6 +52,7 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                     _context.SaveChanges();
                 }
 
+                // check if account status is initiated(Created but not complete) redirect user to stripe to complete that.
                 if (appUser.StripeAccountStatus == ApplicationUser.StripeAccountStatuses.Initiated)
                 {
                     var accountLinkOptions = new AccountLinkCreateOptions

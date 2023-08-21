@@ -42,7 +42,7 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
             if (appUser != null)
             {
                 StripeConfiguration.ApiKey = "sk_test_51NaxGxLHv0zYK8g4ZEh9KncjP5T6hbERI8VIn5bKUZvuY36xCSfp99bdrH5Td65cXkJ5FgDdMFVbmAao6xfm8Wje00pAJrWOjf";
-
+                // Connected Account creation.
                 if (appUser.StripeAccountStatus == ApplicationUser.StripeAccountStatuses.NotCreated)
                 {
                     appUser.StripeConnectedId = _stripeAccountService.CreateStripeAccount(StripeConfiguration.ApiKey);
@@ -59,6 +59,7 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                     }
                 }
 
+                // Redirect user to stripe for account completion. A stripe link is generated with return Url and refresh url.
                 if (appUser.StripeAccountStatus == ApplicationUser.StripeAccountStatuses.Initiated)
                 {
                     var accountLinkOptions = new AccountLinkCreateOptions

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Stripe.Checkout;
 using Stripe.OnBoardCheckOutSplit.Data;
 using Stripe.OnBoardCheckOutSplit.Models;
 using Stripe.OnBoardCheckOutSplit.Services.Stripe;
@@ -61,38 +62,42 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                 var options = new Stripe.Checkout.SessionCreateOptions
                 {
                     PaymentMethodTypes = new List<string>
-                {
-                    "card",
-                },
-                    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
-                {
-                    new Stripe.Checkout.SessionLineItemOptions
                     {
-                        PriceData = new Stripe.Checkout.SessionLineItemPriceDataOptions
-                        {
-                            UnitAmount = Convert.ToInt64(mileStone.Price * 100), // Amount in cents ($100)
-                            Currency = mileStone.Currency,
-                            ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions
-                            {
-                                Name = mileStone.Title,
-                                
-                            }
-                            
-                        },
-                        Quantity = 1,
+                        "card",
                     },
-                },
+                    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+                    {
+                        new Stripe.Checkout.SessionLineItemOptions
+                        {
+                            PriceData = new Stripe.Checkout.SessionLineItemPriceDataOptions
+                            {
+                                UnitAmount = Convert.ToInt64(mileStone.Price * 100), // Amount in cents ($100)
+                                Currency = mileStone.Currency,
+                                ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = mileStone.Title,
+
+                                }
+
+                            },
+                            Quantity = 1,
+                        },
+                    },
                     Mode = "payment",
                     SuccessUrl = successUrl,
                     CancelUrl = cancelUrl,
                     // This is meta data which can be used to store any information which will be available on payment success/Cancel.
                     Metadata = new Dictionary<string, string>
-                {
-                    {"contractId", contract.Id.ToString()},
-                    {"freelancerId1", "123"},
-                    {"freelancerId2", "123"},
-                    {"Architect", "123"}
-                }
+                    {
+                        { "contractId", contract.Id.ToString() },
+                        { "freelancerId1", "123" },
+                        { "freelancerId2", "123" },
+                        { "Architect", "123" }
+                    },
+                    AutomaticTax = new SessionAutomaticTaxOptions 
+                    { 
+                        Enabled = true 
+                    }
                 };
 
 

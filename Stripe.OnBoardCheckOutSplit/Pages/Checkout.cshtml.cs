@@ -75,7 +75,9 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                             ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions
                             {
                                 Name = mileStone.Title,
+                                
                             }
+                            
                         },
                         Quantity = 1,
                     },
@@ -111,6 +113,8 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                 {
                     //checkout initiated successful
                     contract.SessionId = session.Id;
+                    contract.SessionExpiry = session.ExpiresAt;
+
                     if (session.PaymentStatus == "unpaid")
                     {
                         contract.PaymentStatus = Contract.PaymentStatuses.UnPaid;

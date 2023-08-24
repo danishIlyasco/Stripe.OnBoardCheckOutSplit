@@ -28,20 +28,21 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
         {
             var user = await _userManager.GetUserAsync(User);
 
-            if (user == null)
+            if (user != null)
             {
                 var contract = _context.Contracts.FirstOrDefault(x => x.Id.ToString() == cntId && x.ClientUserId == user.Id);
 
-                if (contract != null && contract.PaymentStatus == Contract.PaymentStatuses.UnPaid)
+                if (contract != null)
                 {
                     var service = new  Stripe.Checkout.SessionService();
                     var checkoutSession = service.Get(contract.SessionId);
 
                     if(checkoutSession != null)
                     {
-                        if (checkoutSession.PaymentStatus == "paid")
+                        if (checkoutSession.PaymentStatus == "paid" && checkoutSession.Status == "complete")
                         {
                             contract.PaymentStatus = Contract.PaymentStatuses.Paid;
+                            contract.PaymentIntentId = checkoutSession.PaymentIntentId;
                             ViewData["Message"] = "Your payment is compeleted successfully and in escrow. Incase of milestone approved successfully it will be transfered to all stakeholders(Freelances, Architects and Platfom)";
                         }
                         else if (checkoutSession.PaymentStatus == "no_payment_required")
@@ -51,7 +52,21 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                         }
                         else if (checkoutSession.PaymentStatus == "unpaid") 
                         {
+                            contract.PaymentStatus = Contract.PaymentStatuses.NoPaymentRequired;
                             ViewData["Message"] = "Your payment is in upaid state state yet.We have not received the payment.";
+                        }
+
+                        if (checkoutSession.Status == "complete")
+                        {
+                            contract.SessionStatus = Contract.SessionStatuses.Complete;
+                        }
+                        else if (checkoutSession.Status == "expired")
+                        {
+                            contract.SessionStatus = Contract.SessionStatuses.Expired;
+                        }
+                        else if (checkoutSession.Status == "open")
+                        {
+                            contract.SessionStatus = Contract.SessionStatuses.Open;
                         }
                     }
 

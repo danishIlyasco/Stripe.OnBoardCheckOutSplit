@@ -26,11 +26,12 @@ namespace Stripe.OnBoardCheckOutSplit.Models
         public Milestone MileStone { get; set; }
         public List<ContractUser> ContractUsers { get; set; }
         public PaymentStatuses PaymentStatus { get; set; }
-        public string PaymentIntentId { get; set; }
+        public string? PaymentIntentId { get; set; }
         public ApplicationUser ClientUser { get; set; }        
         public string? ClientUserId { get; set; }
         public string? TransactionId { get; set; }
         public string? SessionId { get; set; }
         public SessionStatuses SessionStatus { get; set; }
+        public DateTime? SessionExpiry { get; set; }
     }
 }

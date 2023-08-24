@@ -13,12 +13,14 @@ namespace Stripe.OnBoardCheckOutSplit.Models
             UnPaid,
             Paid,
             NoPaymentRequired,
+            PartiallySplitted,
             Splitted,
             Cancelled
         }
 
         public enum SessionStatuses
         {
+            NotCreated,
             Open,
             Complete,
             Expired
@@ -33,5 +35,8 @@ namespace Stripe.OnBoardCheckOutSplit.Models
         public string? SessionId { get; set; }
         public SessionStatuses SessionStatus { get; set; }
         public DateTime? SessionExpiry { get; set; }
+        public string? LatestCahrgeId { get; set; }
+
+        public Guid MileStoneId { get; set; }
     }
 }

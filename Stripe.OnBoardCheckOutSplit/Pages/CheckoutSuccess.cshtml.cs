@@ -30,43 +30,38 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
 
             if (user != null)
             {
+                // Please note that this logic is verification of the encrypted string that is set for specific contract and logged in user is owner of the contract.
                 var contract = _context.Contracts.FirstOrDefault(x => x.Id.ToString() == cntId && x.ClientUserId == user.Id);
 
                 if (contract != null)
                 {
-                    var service = new  Stripe.Checkout.SessionService();
-                    var checkoutSession = service.Get(contract.SessionId);
+                    var checkoutSession = _stripeAccountService.GetCheckOutSesssion(contract.SessionId);
 
                     if(checkoutSession != null)
                     {
-                        if (checkoutSession.PaymentStatus == "paid" && checkoutSession.Status == "complete")
+                        contract.SessionStatus = _stripeAccountService.GetSesssionStatus(checkoutSession);
+                        contract.PaymentStatus = _stripeAccountService.GetPaymentStatus(checkoutSession);
+
+                        if (contract.PaymentStatus == Contract.PaymentStatuses.Paid && contract.SessionStatus == Contract.SessionStatuses.Complete)
                         {
-                            contract.PaymentStatus = Contract.PaymentStatuses.Paid;
                             contract.PaymentIntentId = checkoutSession.PaymentIntentId;
+
+                            var paymentIntent = _stripeAccountService.GetPaymentIntent(contract.PaymentIntentId);
+                            
+                            if (paymentIntent != null && !string.IsNullOrEmpty(paymentIntent.LatestChargeId))
+                            {
+                                contract.LatestCahrgeId = paymentIntent.LatestChargeId;
+                            }
+
                             ViewData["Message"] = "Your payment is compeleted successfully and in escrow. Incase of milestone approved successfully it will be transfered to all stakeholders(Freelances, Architects and Platfom)";
                         }
-                        else if (checkoutSession.PaymentStatus == "no_payment_required")
+                        else if (contract.PaymentStatus == Contract.PaymentStatuses.NoPaymentRequired)
                         {
-                            contract.PaymentStatus = Contract.PaymentStatuses.NoPaymentRequired;
                             ViewData["Message"] = "Your payment is in no payment required state. The payment is delayed to a future date, or the Checkout Session is in setup mode and doesn’t require a payment at this time.";
                         }
-                        else if (checkoutSession.PaymentStatus == "unpaid") 
+                        else if (contract.PaymentStatus == Contract.PaymentStatuses.UnPaid) 
                         {
-                            contract.PaymentStatus = Contract.PaymentStatuses.NoPaymentRequired;
                             ViewData["Message"] = "Your payment is in upaid state state yet.We have not received the payment.";
-                        }
-
-                        if (checkoutSession.Status == "complete")
-                        {
-                            contract.SessionStatus = Contract.SessionStatuses.Complete;
-                        }
-                        else if (checkoutSession.Status == "expired")
-                        {
-                            contract.SessionStatus = Contract.SessionStatuses.Expired;
-                        }
-                        else if (checkoutSession.Status == "open")
-                        {
-                            contract.SessionStatus = Contract.SessionStatuses.Open;
                         }
                     }
 

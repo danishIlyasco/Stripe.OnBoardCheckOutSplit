@@ -28,6 +28,7 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
 
         public async Task OnGet()
         {
+            // Here on checkout page landing a contract will be created.
             var project = _context.Projects.FirstOrDefault();
 
             if (project == null)
@@ -39,7 +40,7 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
             if (contract == null)
             {
                 var milestone = _context.Milestones.FirstOrDefault();
-                _context.Contracts.Add(new Contract { ContractUsers = new List<ContractUser> { new ContractUser { ApplicationUser = await _userManager.GetUserAsync(User), Percentage = 80 } }, MileStone = milestone, PaymentStatus = Contract.PaymentStatuses.ContractCreated, PaymentIntentId = string.Empty });
+                _context.Contracts.Add(new Contract { ContractUsers = new List<ContractUser> { new ContractUser { ApplicationUser = await _userManager.GetUserAsync(User), Percentage = 80 } }, MileStoneId = milestone.Id, MileStone = milestone, PaymentStatus = Contract.PaymentStatuses.ContractCreated, PaymentIntentId = string.Empty });
                 _context.SaveChanges();
             }
         }
@@ -58,90 +59,25 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
 
             if (contract.PaymentStatus == Contract.PaymentStatuses.ContractCreated)
             {
+                Session session = _stripeAccountService.CreateCheckoutSession(mileStone, successUrl, cancelUrl);
 
-                var options = new Stripe.Checkout.SessionCreateOptions
-                {
-                    PaymentMethodTypes = new List<string>
-                    {
-                        "card",
-                    },
-                    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
-                    {
-                        new Stripe.Checkout.SessionLineItemOptions
-                        {
-                            PriceData = new Stripe.Checkout.SessionLineItemPriceDataOptions
-                            {
-                                UnitAmount = Convert.ToInt64(mileStone.Price * 100), // Amount in cents ($100)
-                                Currency = mileStone.Currency,
-                                ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions
-                                {
-                                    Name = mileStone.Title,
-
-                                }
-
-                            },
-                            Quantity = 1,
-                        },
-                    },
-                    Mode = "payment",
-                    SuccessUrl = successUrl,
-                    CancelUrl = cancelUrl,
-                    // This is meta data which can be used to store any information which will be available on payment success/Cancel.
-                    Metadata = new Dictionary<string, string>
-                    {
-                        { "contractId", contract.Id.ToString() },
-                        { "freelancerId1", "123" },
-                        { "freelancerId2", "123" },
-                        { "Architect", "123" }
-                    },
-                    AutomaticTax = new SessionAutomaticTaxOptions 
-                    { 
-                        Enabled = true 
-                    }
-                };
-
-
-                Stripe.Checkout.Session session;
-
-                try
-                {
-                    var service = new Stripe.Checkout.SessionService();
-                    session = service.Create(options);
-                }
-                catch (Exception ex)
+                if (session == null || string.IsNullOrEmpty(session.Id))
                 {
                     Response.Headers.Add("Location", domain + "/Checkout");
                     return new StatusCodeResult(303);
                 }
 
-                if (session != null && !string.IsNullOrEmpty(session.Id))
-                {
-                    //checkout initiated successful
-                    contract.SessionId = session.Id;
-                    contract.SessionExpiry = session.ExpiresAt;
+                //checkout initiated successful
+                contract.SessionId = session.Id;
+                contract.SessionExpiry = session.ExpiresAt;
+                contract.PaymentStatus = _stripeAccountService.GetPaymentStatus(session);
 
-                    if (session.PaymentStatus == "unpaid")
-                    {
-                        contract.PaymentStatus = Contract.PaymentStatuses.UnPaid;
-                    }
 
-                    if (session.Status == "open")
-                    {
-                        contract.SessionStatus = Contract.SessionStatuses.Open;
-                    }
+                _context.Update(contract);
+                _context.SaveChanges();
 
-                    _context.Update(contract);
-                    _context.SaveChanges();
-
-                    Response.Headers.Add("Location", session.Url);
-                    return new StatusCodeResult(303);
-                }
-                else
-                {
-                    // try checkout again
-                    Response.Headers.Add("Location", domain + "/Checkout");
-                    return new StatusCodeResult(303);
-                }
+                Response.Headers.Add("Location", session.Url);
+                return new StatusCodeResult(303);
             }
             else
             {

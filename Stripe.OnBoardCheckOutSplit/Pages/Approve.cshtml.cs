@@ -28,20 +28,56 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
 
         }
 
-        public void OnPost()
+        public async void OnPost()
         {
             // Receive the contract which we want to approve.
-            var contract = _context.Contracts.FirstOrDefault();
+            var contract = _context.Contracts.Include("ContractUsers").FirstOrDefault();
 
             if (contract != null)
             {
-                // Receive payment intent from Id
-                var service = new PaymentIntentService();
-                var response = service.Get(contract.PaymentIntentId);
-                if (response != null)
-                { 
+                var mileStone = _context.Milestones.FirstOrDefault(x => x.Id == contract.MileStoneId);
+                var checkoutSession = _stripeAccountService.GetCheckOutSesssion(contract.SessionId);
+
+                if (checkoutSession != null)
+                {
+                    contract.SessionStatus = _stripeAccountService.GetSesssionStatus(checkoutSession);
                     
+                    if (_stripeAccountService.GetPaymentStatus(checkoutSession) == Contract.PaymentStatuses.Paid)
+                    {
+                        foreach (var contractUser in contract.ContractUsers.Where(x => !x.IsTransfered))
+                        {
+                            var user = _context.Users.FirstOrDefault(x => x.Id == contractUser.ApplicationUserId);
+
+                            if (user != null && user.StripeAccountStatus == ApplicationUser.StripeAccountStatuses.Complete)
+                            {
+                                var paymentIntent = _stripeAccountService.GetPaymentIntent(contract.PaymentIntentId);
+
+                                var priceToTransfer = (long)(Convert.ToDecimal(contractUser.Percentage) / 100 * mileStone.Price * 100);
+                                var transferId = _stripeAccountService.CreateTransferonCharge(priceToTransfer, mileStone.Currency, user.StripeConnectedId, contract.LatestCahrgeId, contract.Id.ToString());
+                                contractUser.StripeTranferId = transferId;
+                                contractUser.IsTransfered = true;
+                                _context.ContractUsers.Update(contractUser);
+                            }
+                            else
+                            {
+                                // this User(freelabncer or architect) has not completed his Stripe account please 
+                            }
+                        }
+
+                        if (contract.ContractUsers.Where(x => x.IsTransfered).Count() == contract.ContractUsers.Count())
+                        {
+                            contract.PaymentStatus = Contract.PaymentStatuses.Splitted;
+                        }
+                        else
+                        {
+                            contract.PaymentStatus = Contract.PaymentStatuses.PartiallySplitted;
+                        }
+
+                        _context.Contracts.Update(contract);
+                        _context.SaveChanges();
+                    }
                 }
+
             }
         }
     }

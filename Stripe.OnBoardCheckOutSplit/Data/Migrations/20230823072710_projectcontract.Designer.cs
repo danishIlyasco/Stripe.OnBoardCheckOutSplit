@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stripe.OnBoardCheckOutSplit.Data;
 
@@ -11,9 +12,11 @@ using Stripe.OnBoardCheckOutSplit.Data;
 namespace Stripe.OnBoardCheckOutSplit.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230823072710_projectcontract")]
+    partial class projectcontract
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,9 +165,7 @@ namespace Stripe.OnBoardCheckOutSplit.Data.Migrations
             modelBuilder.Entity("Stripe.OnBoardCheckOutSplit.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
@@ -210,6 +211,7 @@ namespace Stripe.OnBoardCheckOutSplit.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("StripeConnectedId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -239,9 +241,6 @@ namespace Stripe.OnBoardCheckOutSplit.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<string>("ClientUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<Guid>("MileStoneId")
                         .HasColumnType("uniqueidentifier");
 
@@ -252,18 +251,7 @@ namespace Stripe.OnBoardCheckOutSplit.Data.Migrations
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
-                    b.Property<string>("SessionId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SessionStatus")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TransactionId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ClientUserId");
 
                     b.HasIndex("MileStoneId");
 
@@ -393,17 +381,11 @@ namespace Stripe.OnBoardCheckOutSplit.Data.Migrations
 
             modelBuilder.Entity("Stripe.OnBoardCheckOutSplit.Models.Contract", b =>
                 {
-                    b.HasOne("Stripe.OnBoardCheckOutSplit.Models.ApplicationUser", "ClientUser")
-                        .WithMany()
-                        .HasForeignKey("ClientUserId");
-
                     b.HasOne("Stripe.OnBoardCheckOutSplit.Models.Milestone", "MileStone")
                         .WithMany()
                         .HasForeignKey("MileStoneId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ClientUser");
 
                     b.Navigation("MileStone");
                 });

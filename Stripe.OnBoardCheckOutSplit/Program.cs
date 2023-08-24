@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using Stripe.OnBoardCheckOutSplit.Data;
 using Stripe.OnBoardCheckOutSplit.Models;
 using Stripe.OnBoardCheckOutSplit.Services.Stripe;
@@ -19,6 +20,7 @@ builder.Services.AddTransient<IStripeAccountService, StripeAccountService>();
 
 var app = builder.Build();
 
+StripeConfiguration.ApiKey = "sk_test_51NaxGxLHv0zYK8g4ZEh9KncjP5T6hbERI8VIn5bKUZvuY36xCSfp99bdrH5Td65cXkJ5FgDdMFVbmAao6xfm8Wje00pAJrWOjf";
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

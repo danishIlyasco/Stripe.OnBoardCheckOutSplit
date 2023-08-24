@@ -1,0 +1,22 @@
+﻿@page
+@model CheckoutModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+<h1>@ViewData["Title"]</h1>
+
+
+<section>
+    <div class="product">
+        <img src="https://i.imgur.com/EHyR2nP.png" alt="The cover of Stubborn Attachments" />
+        <div class="description">
+            <h3>Stubborn Attachments</h3>
+            <h5>$100.00</h5>
+        </div>
+    </div>
+    <form class="form-inline" asp-route-returnUrl="Checkout" method="post">
+        <button type="submit" class="btn btn-primary" id="checkout-button">Checkout</button>
+    </form>
+</section>
+
+

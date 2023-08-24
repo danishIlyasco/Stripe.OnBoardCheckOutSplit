@@ -1,4 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
+﻿using Stripe.OnBoardCheckOutSplit.Models;
 
 namespace Stripe.OnBoardCheckOutSplit.Services.Stripe
 {
@@ -53,6 +53,42 @@ namespace Stripe.OnBoardCheckOutSplit.Services.Stripe
             catch (Exception ex)
             {
                 return false;
+            }
+        }
+
+        public string GetPaymentIntentStatus(string paymentIntentId, string dbStatus)
+        {
+            try
+            {
+                var service = new PaymentIntentService();
+                var response = service.Get(paymentIntentId);
+                if (response != null)
+                {
+                    if (response.Status == "processing")
+                    {
+                        return "processing";
+                    }
+                    else if (response.Status == "succeeded")
+                    {
+                        return "succeeded";
+                    }
+                    else if (response.Status == "canceled")
+                    {
+                        return "canceled";
+                    }
+                    else
+                    {
+                        return dbStatus;
+                    }
+                }
+                else
+                {
+                    return dbStatus;
+                }
+            }
+            catch (Exception ex)
+            {
+                return dbStatus;
             }
         }
     }

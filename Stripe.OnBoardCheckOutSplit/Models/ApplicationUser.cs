@@ -19,7 +19,7 @@ namespace Stripe.OnBoardCheckOutSplit.Models
         /// <summary>
         /// Stripe connect account Id
         /// </summary>
-        public string StripeConnectedId { get; set; }
+        public string? StripeConnectedId { get; set; }
 
         public StripeAccountStatuses StripeAccountStatus { get; set; }
     }

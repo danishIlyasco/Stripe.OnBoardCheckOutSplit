@@ -31,8 +31,6 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
             var appUser = await _userManager.GetUserAsync(User);
             if (appUser != null)
             {
-                StripeConfiguration.ApiKey = "sk_test_51NaxGxLHv0zYK8g4ZEh9KncjP5T6hbERI8VIn5bKUZvuY36xCSfp99bdrH5Td65cXkJ5FgDdMFVbmAao6xfm8Wje00pAJrWOjf";
-                
                 // checking Status of the account
                 if (_stripeAccountService.IsComplete(appUser.StripeConnectedId))
                 {

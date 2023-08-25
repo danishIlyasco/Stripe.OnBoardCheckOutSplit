@@ -54,9 +54,13 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
 
                                 var priceToTransfer = (long)(Convert.ToDecimal(contractUser.Percentage) / 100 * mileStone.Price * 100);
                                 var transferId = _stripeAccountService.CreateTransferonCharge(priceToTransfer, mileStone.Currency, user.StripeConnectedId, contract.LatestCahrgeId, contract.Id.ToString());
-                                contractUser.StripeTranferId = transferId;
-                                contractUser.IsTransfered = true;
-                                _context.ContractUsers.Update(contractUser);
+                                
+                                if (transferId != null)
+                                {
+                                    contractUser.StripeTranferId = transferId;
+                                    contractUser.IsTransfered = true;
+                                    _context.ContractUsers.Update(contractUser);
+                                }
                             }
                             else
                             {
@@ -64,13 +68,21 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                             }
                         }
 
-                        if (contract.ContractUsers.Where(x => x.IsTransfered).Count() == contract.ContractUsers.Count())
+                        var transferredcount = contract.ContractUsers.Where(x => x.IsTransfered).Count();
+
+                        if (transferredcount == contract.ContractUsers.Count())
                         {
                             contract.PaymentStatus = Contract.PaymentStatuses.Splitted;
+                            ViewData["message"] = string.Format("Amount is transferred to all {0} users(freelancers) and its status is splitted Now.", transferredcount);
+                        }
+                        else if (transferredcount > 0)
+                        {
+                            contract.PaymentStatus = Contract.PaymentStatuses.PartiallySplitted;
+                            ViewData["message"] = string.Format("Amount is transferred to {0} users(freelancers) and its status is Partially Splitted Now. Please press transfer again and make sure all users are onboard(stripe)", transferredcount);
                         }
                         else
                         {
-                            contract.PaymentStatus = Contract.PaymentStatuses.PartiallySplitted;
+                            ViewData["message"] = string.Format("Amount is transferred to {0} users(freelancers) and its status is not changed from previous. Please press transfer again and make sure all users(freelancers) are onboard(stripe)", transferredcount);
                         }
 
                         _context.Contracts.Update(contract);

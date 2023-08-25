@@ -6,15 +6,25 @@
 <h1>@ViewData["Title"]</h1>
 
 <section>
-    <div class="product">
-        <img src="https://i.imgur.com/EHyR2nP.png" alt="The cover of Stubborn Attachments" />
-        <div class="description">
-            <h3>Stubborn Attachments</h3>
-            <h5>$100.00</h5>
+    @if (ViewData["message"] != null)
+    {
+        <div class="text-center">
+            <h1 class="display-4">Thank you</h1>
+            <p>@ViewData["Message"]</p>
         </div>
-    </div>
-    <form class="form-inline" asp-route-returnUrl="Approve" method="post">
-        <h5>By cliking approve Payment will be slipt into all parties</h5>
-        <button type="submit" class="btn btn-primary" id="approve-button">Approve</button>
-    </form>
+    }
+    else
+    {
+        <div class="product">
+            <img src="https://i.imgur.com/EHyR2nP.png" alt="The cover of Stubborn Attachments" />
+            <div class="description">
+                <h3>Stubborn Attachments</h3>
+                <h5>$100.00</h5>
+            </div>
+        </div>
+        <form class="form-inline" asp-route-returnUrl="Approve" method="post">
+            <h5>By cliking approve Payment will be slipt into all parties</h5>
+            <button type="submit" class="btn btn-primary" id="approve-button">Approve</button>
+        </form>
+    }
 </section>

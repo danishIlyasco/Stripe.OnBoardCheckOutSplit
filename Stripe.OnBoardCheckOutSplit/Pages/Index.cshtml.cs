@@ -62,18 +62,16 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                 // Redirect user to stripe for account completion. A stripe link is generated with return Url and refresh url.
                 if (appUser.StripeAccountStatus == ApplicationUser.StripeAccountStatuses.Initiated)
                 {
-                    var accountLinkOptions = new AccountLinkCreateOptions
+                    var accountConnectingLink = _stripeAccountService.CreateOnBoardLink(appUser.StripeConnectedId, "https://localhost:7122", "https://localhost:7122/StripeWelcome");
+
+                    if (accountConnectingLink != null)
                     {
-                        Account = appUser.StripeConnectedId,
-                        RefreshUrl = "https://localhost:7122",
-                        ReturnUrl = "https://localhost:7122/StripeWelcome",
-                        Type = "account_onboarding"
-                    };
-
-                    var accountLinkService = new AccountLinkService();
-                    var accountLinks = accountLinkService.Create(accountLinkOptions);
-
-                    Response.Redirect(accountLinks.Url);
+                        Response.Redirect(accountConnectingLink.Url);
+                    }
+                    else
+                    {
+                        Response.Redirect("https://localhost:7122");
+                    }
                 }
             }
         }

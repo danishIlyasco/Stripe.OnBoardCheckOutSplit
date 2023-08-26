@@ -61,7 +61,7 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                         }
                         else if (contract.PaymentStatus == Contract.PaymentStatuses.UnPaid) 
                         {
-                            ViewData["Message"] = "Your payment is in upaid state state yet.We have not received the payment.";
+                            ViewData["Message"] = "Your payment is in upaid state yet.We have not received the payment.";
                         }
                     }
 

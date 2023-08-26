@@ -14,5 +14,6 @@ namespace Stripe.OnBoardCheckOutSplit.Services.Stripe
         public PaymentIntent GetPaymentIntent(string paymentIntentId);
         public Session CreateCheckoutSession(Milestone milestone, string successUrl, string cancelUrl);
         public string CreateTransferonCharge(long amount, string currency, string destination, string sourceTransaction, string transferGroup);
+        public AccountLink CreateOnBoardLink(string stripeConnectId, string refreshUrl, string returnUrl);
     }
 }

@@ -27,9 +27,12 @@ namespace Stripe.OnBoardCheckOutSplit.Models
         }
         public Milestone MileStone { get; set; }
         public List<ContractUser> ContractUsers { get; set; }
-        public PaymentStatuses PaymentStatus { get; set; }
         public string? PaymentIntentId { get; set; }
-        public ApplicationUser ClientUser { get; set; }        
+        public ApplicationUser ClientUser { get; set; }
+        public Guid MileStoneId { get; set; }
+
+        // Stripe specific fields below
+        public PaymentStatuses PaymentStatus { get; set; }
         public string? ClientUserId { get; set; }
         public string? TransactionId { get; set; }
         public string? SessionId { get; set; }
@@ -37,6 +40,6 @@ namespace Stripe.OnBoardCheckOutSplit.Models
         public DateTime? SessionExpiry { get; set; }
         public string? LatestCahrgeId { get; set; }
 
-        public Guid MileStoneId { get; set; }
+        // Stripe fields above
     }
 }

@@ -228,5 +228,26 @@ namespace Stripe.OnBoardCheckOutSplit.Services.Stripe
             }
            
         }
+
+        public AccountLink CreateOnBoardLink(string stripeConnectId, string refreshUrl, string returnUrl)
+        {
+            var accountLinkOptions = new AccountLinkCreateOptions
+            {
+                Account = stripeConnectId,
+                RefreshUrl = refreshUrl,
+                ReturnUrl = returnUrl,
+                Type = "account_onboarding"
+            };
+
+            try
+            {
+                var accountLinkService = new AccountLinkService();
+                return accountLinkService.Create(accountLinkOptions);
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

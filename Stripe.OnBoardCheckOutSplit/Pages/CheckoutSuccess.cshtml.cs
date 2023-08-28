@@ -31,7 +31,7 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
             if (user != null)
             {
                 // Please note that this logic is verification of the encrypted string that is set for specific contract and logged in user is owner of the contract.
-                var contract = _context.Contracts.FirstOrDefault(x => x.Id.ToString() == cntId && x.ClientUserId == user.Id);
+                var contract = _context.Contracts.FirstOrDefault(x => x.Id.ToString() == cntId);
 
                 if (contract != null)
                 {

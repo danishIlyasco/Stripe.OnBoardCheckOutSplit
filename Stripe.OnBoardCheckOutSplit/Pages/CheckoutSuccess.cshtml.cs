@@ -63,10 +63,19 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                         {
                             ViewData["Message"] = "Your payment is in upaid state yet.We have not received the payment.";
                         }
+                        else
+                        {
+                            ViewData["Message"] = string.Format("Your payment is in {0} state yet.We have not received the payment.", contract.PaymentStatus.ToString());
+                        }
                     }
 
                     _context.Contracts.Update(contract);
                     _context.SaveChanges();
+                }
+                else
+                {
+                    var domain = "https://localhost:7122";
+                    Response.Redirect(domain + "/Checkout");
                 }
             }
         }

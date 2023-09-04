@@ -129,6 +129,48 @@ namespace Stripe.OnBoardCheckOutSplit.Pages
                 Response.Headers.Add("Location", session.Url);
                 return new StatusCodeResult(303);
             }
+            else if (contract.PaymentStatus == Contract.PaymentStatuses.UnPaid)
+            {
+                var checkoutSession = _stripeAccountService.GetCheckOutSesssion(contract.SessionId);
+                
+                if(checkoutSession != null)
+                {
+                    contract.SessionStatus = _stripeAccountService.GetSesssionStatus(checkoutSession);
+
+                    if (contract.SessionStatus == Contract.SessionStatuses.Open)
+                    {
+                        Response.Headers.Add("Location", checkoutSession.Url);
+                        return new StatusCodeResult(303);
+                    }
+                    else
+                    {
+                        Session session = _stripeAccountService.CreateCheckoutSession(mileStone, successUrl, cancelUrl);
+
+                        if (session == null || string.IsNullOrEmpty(session.Id))
+                        {
+                            Response.Headers.Add("Location", domain + "/Checkout");
+                            return new StatusCodeResult(303);
+                        }
+
+                        //checkout initiated successful
+                        contract.SessionId = session.Id;
+                        contract.SessionExpiry = session.ExpiresAt;
+                        contract.SessionStatus = _stripeAccountService.GetSesssionStatus(session);
+                        contract.PaymentStatus = _stripeAccountService.GetPaymentStatus(session);
+
+                        _context.Update(contract);
+                        _context.SaveChanges();
+
+                        Response.Headers.Add("Location", session.Url);
+                        return new StatusCodeResult(303);
+                    }
+                }
+                else
+                {
+                    Response.Headers.Add("Location", successUrl);
+                    return new StatusCodeResult(303);
+                }
+            }
             else
             {
                 Response.Headers.Add("Location", successUrl);

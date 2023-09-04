@@ -156,38 +156,42 @@ namespace Stripe.OnBoardCheckOutSplit.Services.Stripe
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string>
-                    {
-                        "card",
-                    },
+                {
+                    "card",
+                },
                 LineItems = new List<SessionLineItemOptions>
+                {
+                    new SessionLineItemOptions
                     {
-                        new SessionLineItemOptions
+                        PriceData = new SessionLineItemPriceDataOptions
                         {
-                            PriceData = new SessionLineItemPriceDataOptions
+                            UnitAmount = Convert.ToInt64(mileStone.Price * 100), // Amount in cents ($100)
+                            Currency = mileStone.Currency,
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                UnitAmount = Convert.ToInt64(mileStone.Price * 100), // Amount in cents ($100)
-                                Currency = mileStone.Currency,
-                                ProductData = new SessionLineItemPriceDataProductDataOptions
-                                {
-                                    Name = mileStone.Title,
-                                }
+                                Name = mileStone.Title,
+                            }
 
-                            },
-                            Quantity = 1,
                         },
+                        Quantity = 1,
                     },
+                },
                 Mode = "payment",
                 SuccessUrl = successUrl,
                 CancelUrl = cancelUrl,
                 // This is meta data which can be used to store any information which will be available on payment success/Cancel.
                 Metadata = new Dictionary<string, string>
-                    {
-                        { "contractId", "contractId" },
-                        { "freelancerId1", "123" },
-                        { "freelancerId2", "123" },
-                        { "Architect", "123" }
-                    },
+                {
+                    { "contractId", "contractId" },
+                    { "freelancerId1", "123" },
+                    { "freelancerId2", "123" },
+                    { "Architect", "123" }
+                },
                 AutomaticTax = new SessionAutomaticTaxOptions
+                {
+                    Enabled = true
+                },
+                TaxIdCollection = new SessionTaxIdCollectionOptions
                 {
                     Enabled = true
                 }
